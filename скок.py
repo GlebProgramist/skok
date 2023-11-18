@@ -15,6 +15,7 @@ class Ball:
         self.y = -3
         self.canvas_height = self.canvas.winfo_height()
         self.canvas_width = self.canvas.winfo_width()
+        self.hit_bottom = False
 
     def hit_paddle(self, pos):
         paddle_pos = self.canvas.coords(self.paddle.id)
@@ -29,7 +30,7 @@ class Ball:
         if pos[1] <= 0:
             self.y = 3
         if pos[3] >= self.canvas_height:
-            self.y = -3
+            self.hit_bottom = True
         if self.hit_paddle(pos) == True:
             self.y = -3
         if pos[0] <= 0:
@@ -62,6 +63,16 @@ class Paddle:
         elif pos [2] >= self.canvas_width:
             self.x = 0
 
+
+class Game_Manager:
+    def __init__(self, canvas):
+        self.canvas = canvas
+        self.started = False
+        self.canvas.bind_all('<Button-1>', self.start_game)
+
+    def start_game(self, evt):
+        self.started = True
+
 tk = Tk()
 tk.title('Game')
 tk.resizable(0, 0)
@@ -70,12 +81,14 @@ canvas = Canvas(tk, width=500, height=400, bd=0, highlightthickness=0)
 canvas.pack()
 tk.update()
 
+game = Game_Manager(canvas)
 
 paddle = Paddle(canvas, 'blue')
 ball = Ball(canvas, paddle, 'red')
 while 1:
-    ball.draw()
-    paddle.draw()
+    if ball.hit_bottom == False and game.started == True:
+        ball.draw()
+        paddle.draw()
     tk.update_idletasks()
     tk.update()
     time.sleep(0.01)
