@@ -16,11 +16,15 @@ class Ball:
         self.canvas_height = self.canvas.winfo_height()
         self.canvas_width = self.canvas.winfo_width()
         self.hit_bottom = False
+        self.score = False
 
     def hit_paddle(self, pos):
         paddle_pos = self.canvas.coords(self.paddle.id)
         if pos[2] >= paddle_pos[0] and pos[0] <= paddle_pos[2]:
+            self.score = False
             if pos[3] >= paddle_pos[1] and pos[3] <= paddle_pos[3]:
+                self.x += self.paddle.x
+                self.score = True
                 return True
         return False
 
@@ -81,14 +85,21 @@ canvas = Canvas(tk, width=500, height=400, bd=0, highlightthickness=0)
 canvas.pack()
 tk.update()
 
+i = 0
 game = Game_Manager(canvas)
-
 paddle = Paddle(canvas, 'blue')
 ball = Ball(canvas, paddle, 'red')
+game_over_text = canvas.create_text(200, 100, text = 'Game Over', state='hidden')
+score_text = canvas.create_text(400, 10, text=i)
 while 1:
     if ball.hit_bottom == False and game.started == True:
         ball.draw()
         paddle.draw()
+    if ball.score == True:
+        i += 1
+        canvas.itemconfig(score_text, text = i)
+    if ball.hit_bottom == True:
+        canvas.itemconfig(game_over_text, state = 'normal')
     tk.update_idletasks()
     tk.update()
     time.sleep(0.01)
